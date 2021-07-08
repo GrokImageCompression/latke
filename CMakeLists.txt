@@ -15,7 +15,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option(XILINX "Support Xilinx XRT" OFF)
 if (XILINX)
-set(VIVADO_INCLUDE_DIR "/tools/Xilinx/Vivado/2020.1/include/" CACHE STRING "Vivado Include Directory")
+set(VIVADO_INCLUDE_DIR "/tools/Xilinx/Vivado/2021.1/include/" CACHE STRING "Vivado Include Directory")
 set(XRT_INCLUDE_DIR "/opt/xilinx/xrt/include/" CACHE STRING "XRT Include Directory")
 include_directories(${VIVADO_INCLUDE_DIR} ${XRT_INCLUDE_DIR})
 endif (XILINX)

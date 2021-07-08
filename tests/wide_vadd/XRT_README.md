@@ -56,15 +56,6 @@ To check that card is working correctly, run:
 `$ sudo /opt/xilinx/xrt/bin/xbmgmt flash --scan`
 
 
-<<<<<<< Updated upstream
-$ sudo apt install valgrind
-$ sudo snap install cmake --classic
-$ sudo apt install libomp-dev
-$ cd latke && mkdir build && cd build && cmake .. -DXILINX=ON
-$ make -j48
-
-```
-=======
 #### Flash U250
 `$ sudo /opt/xilinx/xrt/bin/xbmgmt flash --update --shell  xilinx_u250_gen3x16_base_3 --card 0000:4a:00.0`
 
@@ -72,13 +63,23 @@ After flash is complete, do a cold reboot:
 
 shut down and remove the PC power plug and wait a few minutes
 before re-plugging and re-starting.
->>>>>>> Stashed changes
+
+#### Build test binary
+
+```
+$ sudo apt install valgrind
+$ sudo snap install cmake --classic
+$ sudo apt install libomp-dev
+$ cd latke && mkdir build && cd build && cmake .. -DXILINX=ON
+$ make -j48
+
+```
 
 Note: Make sure that cmake settings point to correct Vivado and XRT include directories.
 Default values are:
 
 ```
-VIVADO_INCLUDE_DIR       "/tools/Xilinx/Vivado/2020.1/include/"
+VIVADO_INCLUDE_DIR       "/tools/Xilinx/Vivado/2021.1/include/"
 XRT_INCLUDE_DIR          "/opt/xilinx/xrt/include/"
 ```
 
@@ -92,49 +93,6 @@ $ v++ -t hw --platform xilinx_u250_gen3x16_xdma_3_1_202020_1 --link --config con
 
 ```
 
-<<<<<<< Updated upstream
-Now copy `wide_vadd_HW.xilinx_u250_xdma_201830_2` xclbin binary to latke build directory, and run `wide_vadd` executable:
-
-$ ./wide_vadd wide_vadd_HW
-
-
-### Profiling
-
-https://www.xilinx.com/html_docs/xilinx2020_1/vitis_doc/profilingapplication.html#xmv1511400547463
-
-`xrt.ini` file must be placed in the same directory as the host executable in order to generate
-profile reports
-
-
-### Emulation
-
-There are two other vitis compile modes:
-
-1. hardware emulation:  `hw_emu`
-1. software emulation:  `sw_emu`
-
-Simply replace `hw` above with one of these two other modes:
-
-##### HW EMU
-
-```
-$ v++ -t hw_emu --platform xilinx_u250_xdma_201830_2 -c -k wide_vadd -I'./' -I'/tools/Xilinx/Vivado/2020.1/include/' ./wide_vadd.cpp -o wide_vadd_250HWEMU.xo
-$ v++ -t hw_emu --platform xilinx_u250_xdma_201830_2 --link --config connectivity_u250.cfg  --profile_kernel data:wide_vadd:all:all wide_vadd_250HWEMU.xo -o'wide_vadd_HWEMU.xilinx_u250_xdma_201830_2'
-```
-
-##### SW EMU
-
-```
-$ v++ -t sw_emu --platform xilinx_u250_xdma_201830_2 -c -k wide_vadd -I'./' -I'/tools/Xilinx/Vivado/2020.1/include/' ./wide_vadd.cpp -o wide_vadd_250SWEMU.xo
-$ v++ -t sw_emu --platform xilinx_u250_xdma_201830_2 --link --config connectivity_u250.cfg  --profile_kernel data:wide_vadd:all:all wide_vadd_250SWEMU.xo -o'wide_vadd_SWEMU.xilinx_u250_xdma_201830_2'
-```
-
-To run the emulation, you will need to generate an `emconfig.json` file:
-
-`$ emconfigutil --platform xilinx_u250_xdma_201830_2`
-
-and place it in the working directory of the demo executable.
-=======
 Now copy `wide_vadd_HW.xilinx_u250_gen3x16_xdma_shell_3_1` binary to latke build directory, and run `wide_vadd` executable.
->>>>>>> Stashed changes
 
+$ ./wide_vadd wide_vadd
