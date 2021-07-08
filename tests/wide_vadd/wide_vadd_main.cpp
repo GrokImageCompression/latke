@@ -45,21 +45,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CL/cl_ext_xilinx.h>
 #include "latke.h"
 using namespace ltk;
-// OpenMP
-#include <omp.h>
 
 const uint32_t num_concurrent_kernels = 1;
 // number of 32-bit items in kernel buffer
 const uint32_t bufferSize = (1024 * 1024 * (8/num_concurrent_kernels));
 std::string kernelName = "wide_vadd";
-
-
-void vadd_sw(float *a, float *b, float *c, uint32_t size){
-#pragma omp parallel for
-    for (int i = 0; i < size; i++) {
-        c[i] = a[i] + b[i];
-    }
-}
 
 int enqueue_buf_vadd(cl::CommandQueue &q, cl::Kernel &krnl, cl::Event *event, cl::Buffer a, cl::Buffer b, cl::Buffer c)
 {
