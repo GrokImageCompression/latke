@@ -82,8 +82,8 @@ add_executable(debayer_image tests/debayer/debayerImage.cpp)
 target_link_libraries(debayer_image latke ${OPENCL_LIBRARIES} Threads::Threads)
 
 if (XILINX)
-add_executable(wide_vadd tests/wide_vadd/wide_vadd_main.cpp)
-target_link_libraries(wide_vadd latke ${OPENCL_LIBRARIES} Threads::Threads)
+add_executable(wide_vmul tests/wide_vmul/wide_vmul_main.cpp)
+target_link_libraries(wide_vmul latke ${OPENCL_LIBRARIES} Threads::Threads)
 endif()
 
 

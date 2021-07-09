@@ -399,12 +399,18 @@ int buildOpenCLProgram(cl_program &program, const cl_context &context,
         // try short path
         auto binaryPath = buildData.binaryName;
         if (kernelFile.readBinaryFromFile(binaryPath.c_str())) {
+            std::cout << "Failed to load binary file : " << binaryPath
+                    << std::endl;
             // short path failed; try full path
-            binaryPath = programPath + buildData.binaryName;
-            if (kernelFile.readBinaryFromFile(binaryPath.c_str())) {
-                std::cout << "Failed to load binary file : " << binaryPath
-                        << std::endl;
-                return FAILURE;
+            if (programPath != ""){
+				binaryPath = programPath + binaryPath;
+				if (kernelFile.readBinaryFromFile(binaryPath.c_str())) {
+					std::cout << "Failed to load binary file : " << binaryPath
+							<< std::endl;
+					return FAILURE;
+				}
+            } else {
+            	return FAILURE;
             }
         }
 

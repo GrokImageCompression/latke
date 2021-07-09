@@ -1,59 +1,25 @@
-/**********
-Copyright (c) 2019, Xilinx, Inc.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-may be used to endorse or promote products derived from this software
-without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**********/
-
-#include <array>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <chrono>
-#include <stdexcept>
 
 #define CL_HPP_ENABLE_EXCEPTIONS
-#define CL_HPP_CL_1_2_DEFAULT_BUILD
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
-#define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
 
 #include <CL/cl2.hpp>
 #include <CL/cl_ext_xilinx.h>
 #include "latke.h"
 using namespace ltk;
 
-std::string kernelName = "wide_vadd";
+std::string kernelName = "wide_vmul";
 const uint32_t num_concurrent_kernels = 4;
 
-// this is ~ equivalent to single HD RGB frame
-const uint32_t fullBufferSize = (1024 * 1024 * 2 * 3);
+// this is equivalent to single HD RGBA frame (floating point)
+const uint32_t fullBufferSize = (1080 * 1920 * 4);
 const uint32_t bufferSizePerKernel = fullBufferSize/num_concurrent_kernels;
 
-int enqueue_buf_vadd(cl::CommandQueue &q, cl::Kernel &krnl, cl::Event *event, cl::Buffer a, cl::Buffer b, cl::Buffer c)
+int enqueue_buf(cl::CommandQueue &q, cl::Kernel &krnl, cl::Event *event, cl::Buffer a, cl::Buffer b, cl::Buffer c)
 {
     // Get the size of the buffer
     cl::Event k_event, m_event;
@@ -141,7 +107,7 @@ int main(int argc, char *argv[])
 
     std::cout << std::endl << std::endl;
     std::cout << "Running kernel test with XRT-allocated contiguous buffers" << std::endl;
-    std::cout << "and wide VADD (16 values/clock)" << std::endl;
+    std::cout << "and wide vmul (16 values/clock)" << std::endl;
 
 	std::stringstream buildOptions;
 	buildOptions << " -I ./ ";
@@ -155,7 +121,7 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 	} catch (std::exception &ex){
-		std::cerr << "Failed to generate program";
+		std::cerr << "Failed to generate program. Exiting";
 		return -1;
 	}
 
@@ -240,7 +206,7 @@ int main(int argc, char *argv[])
 			q.enqueueUnmapMemObject(obj->b_buf, obj->b);
 
 			// enqueue kernel
-			enqueue_buf_vadd(q, obj->krnl, &obj->kernel_event, obj->a_buf, obj->b_buf, obj->c_buf);
+			enqueue_buf(q, obj->krnl, &obj->kernel_event, obj->a_buf, obj->b_buf, obj->c_buf);
 
 		}
 		catch (cl::Error &e) {

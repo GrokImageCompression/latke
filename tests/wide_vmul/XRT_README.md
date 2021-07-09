@@ -88,11 +88,11 @@ XRT_INCLUDE_DIR          "/opt/xilinx/xrt/include/"
 U250
 
 ```
-$ v++ -t hw --platform xilinx_u250_gen3x16_xdma_3_1_202020_1 -c -k wide_vadd -I'./' -I'/tools/Xilinx/Vivado/2021.1/include/' ./wide_vadd.cpp -o wide_vadd_250HW.xo
-$ v++ -t hw --platform xilinx_u250_gen3x16_xdma_3_1_202020_1 --link --config connectivity_u250.cfg  --profile_kernel data:wide_vadd:all:all wide_vadd_250HW.xo -o'wide_vadd_HW.xilinx_u250_gen3x16_xdma_shell_3_1'
+$ v++ -t hw --platform xilinx_u250_gen3x16_xdma_3_1_202020_1 -c -k wide_vmul -I'./' -I'/tools/Xilinx/Vivado/2021.1/include/' ./wide_vmul.cpp -o wide_vmul_250HW.xo
+$ v++ -t hw --platform xilinx_u250_gen3x16_xdma_3_1_202020_1 --link --config connectivity_u250.cfg  --profile_kernel data:wide_vmul:all:all wide_vmul_250HW.xo -o'wide_vmul_HW.xilinx_u250_gen3x16_xdma_shell_3_1'
 
 ```
 
-Now copy `wide_vadd_HW.xilinx_u250_gen3x16_xdma_shell_3_1` binary to latke build directory, and run `wide_vadd` executable.
+Now copy `wide_vmul_HW.xilinx_u250_gen3x16_xdma_shell_3_1` binary to latke build directory, and run `wide_vmul` executable.
 
-$ ./wide_vadd wide_vadd
+$ ./wide_vmul wide_vmul_HW
