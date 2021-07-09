@@ -387,31 +387,33 @@ int displayDevices(cl_platform_id platform, cl_device_type deviceType) {
  */
 int buildOpenCLProgram(cl_program &program, const cl_context &context,
         const buildProgramData &buildData) {
-// we only output debug info to console if we are building from source
+    // we only output debug info to console if we are building from source
     bool verbose = buildData.binaryName.empty();
     if (verbose)
         std::cout << std::endl;
     cl_int status = CL_SUCCESS;
     KernelFile kernelFile;
-    std::string programPath = buildData.programPath;
-// first try loading binary
+    auto programPath = buildData.programPath;
+    // first try loading binary
     if (!buildData.binaryName.empty()) {
         // try short path
         auto binaryPath = buildData.binaryName;
+        auto successfulRead = true;
         if (kernelFile.readBinaryFromFile(binaryPath.c_str())) {
-            std::cout << "Failed to load binary file : " << binaryPath
-                    << std::endl;
             // short path failed; try full path
             if (programPath != ""){
 				binaryPath = programPath + binaryPath;
 				if (kernelFile.readBinaryFromFile(binaryPath.c_str())) {
-					std::cout << "Failed to load binary file : " << binaryPath
-							<< std::endl;
-					return FAILURE;
+	            	successfulRead = false;
 				}
             } else {
-            	return FAILURE;
+            	successfulRead = false;
             }
+        }
+        if (!successfulRead){
+			std::cout << "Failed to load binary file : " << binaryPath
+					<< std::endl;
+			return FAILURE;
         }
 
         const char *binary = kernelFile.source().c_str();
