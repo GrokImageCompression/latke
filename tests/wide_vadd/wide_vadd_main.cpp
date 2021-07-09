@@ -46,10 +46,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "latke.h"
 using namespace ltk;
 
-const uint32_t num_concurrent_kernels = 1;
-// number of 32-bit items in kernel buffer
-const uint32_t bufferSize = (1024 * 1024 * (8/num_concurrent_kernels));
 std::string kernelName = "wide_vadd";
+const uint32_t num_concurrent_kernels = 4;
+
+// this is ~ equivalent to single HD RGB frame
+const uint32_t fullBufferSize = (1024 * 1024 * 2 * 3);
+const uint32_t bufferSizePerKernel = fullBufferSize/num_concurrent_kernels;
 
 int enqueue_buf_vadd(cl::CommandQueue &q, cl::Kernel &krnl, cl::Event *event, cl::Buffer a, cl::Buffer b, cl::Buffer c)
 {
@@ -185,17 +187,17 @@ int main(int argc, char *argv[])
 
 			obj->a_buf = cl::Buffer(ctx,
 							 static_cast<cl_mem_flags>(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_EXT_PTR_XILINX),
-							 bufferSize * sizeof(float),
+							 bufferSizePerKernel * sizeof(float),
 							 &obj->in_bank_ext,
 							 NULL);
 			obj->b_buf = cl::Buffer(ctx,
 							 static_cast<cl_mem_flags>(CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_EXT_PTR_XILINX),
-							 bufferSize * sizeof(float),
+							 bufferSizePerKernel * sizeof(float),
 							 &obj->in_bank_ext,
 							 NULL);
 			obj->c_buf = cl::Buffer(ctx,
 							 static_cast<cl_mem_flags>(CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY | CL_MEM_EXT_PTR_XILINX),
-							 bufferSize * sizeof(float),
+							 bufferSizePerKernel * sizeof(float),
 							 &obj->in_bank_ext,
 							 NULL);
 
@@ -210,13 +212,13 @@ int main(int argc, char *argv[])
 														 CL_TRUE,
 														 CL_MAP_WRITE_INVALIDATE_REGION,
 														 0,
-														 bufferSize * sizeof(float));
+														 bufferSizePerKernel * sizeof(float));
 			obj->b = (float *)q.enqueueMapBuffer(obj->b_buf,
 														 CL_TRUE,
 														 CL_MAP_WRITE_INVALIDATE_REGION,
 														 0,
-														 bufferSize * sizeof(float));
-			for (int i = 0; i < bufferSize; i++) {
+														 bufferSizePerKernel * sizeof(float));
+			for (int i = 0; i < bufferSizePerKernel; i++) {
 				obj->a[i] = i;
 				obj->b[i] = 2 * i;
 			}
@@ -262,7 +264,7 @@ int main(int argc, char *argv[])
 													 CL_TRUE,
 													 CL_MAP_READ,
 													 0,
-													 bufferSize * sizeof(float));
+													 bufferSizePerKernel * sizeof(float));
 		// 2. process output
 
 		// 3. unmap output
@@ -270,7 +272,7 @@ int main(int argc, char *argv[])
     }
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;
-	std::cout << "Execution time " <<  (elapsed.count() * 1000.0) << " ms per buffer" << std::endl;
+	std::cout << "Execution time " <<  (elapsed.count() * 1000.0) << " ms for FP buffer of size " << fullBufferSize << std::endl;
 
     q.finish();
 
